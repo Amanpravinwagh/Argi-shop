@@ -1,0 +1,65 @@
+DatabaseHelper.java(sqlite database)
+package com.example.agrishoponline;
+
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+
+public class DatabaseHelper extends SQLiteOpenHelper {
+
+    // Database Name & Version
+    private static final String DATABASE_NAME = "AgriShop.db";
+    private static final int DATABASE_VERSION = 1;
+
+    // Table Name
+    private static final String TABLE_PRODUCTS = "products";
+
+    // Column Names
+    private static final String COL_ID = "id";
+    private static final String COL_NAME = "name";
+    private static final String COL_PRICE = "price";
+    private static final String COL_QUANTITY = "quantity";
+
+    // SQL Query to Create Table
+    private static final String CREATE_TABLE_PRODUCTS =
+            "CREATE TABLE " + TABLE_PRODUCTS + " (" +
+                    COL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    COL_NAME + " TEXT, " +
+                    COL_PRICE + " REAL, " +
+                    COL_QUANTITY + " INTEGER)";
+
+    public DatabaseHelper(Context context) {
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        db.execSQL(CREATE_TABLE_PRODUCTS);
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PRODUCTS);
+        onCreate(db);
+    }
+
+    // Method to Add Product
+    public boolean addProduct(String name, double price, int quantity) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COL_NAME, name);
+        values.put(COL_PRICE, price);
+        values.put(COL_QUANTITY, quantity);
+
+        long result = db.insert(TABLE_PRODUCTS, null, values);
+        return result != -1; // Return true if inserted successfully
+    }
+
+    // Method to Fetch Products
+    public Cursor getAllProducts() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM " + TABLE_PRODUCTS, null);
+    }
+}
